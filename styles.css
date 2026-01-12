@@ -1,0 +1,262 @@
+:root{
+  --bg:#f2fbf6;        /* very pale green */
+  --card:#ffffff;
+  --muted:#4b5563;     /* neutral-muted slate for text */
+  --accent:#16a34a;    /* fresh medium green */
+  --danger:#ef4444;    /* red for overdue/error */
+  --success:#059669;   /* deep green for paid */
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body,#app{height:100%;margin:0;background:var(--bg);-webkit-font-smoothing:antialiased}
+main{max-width:760px;margin:12px auto;padding:12px;display:flex;flex-direction:column;gap:10px;height:calc(100vh - 24px)}
+header{display:flex;gap:8px;align-items:center;justify-content:space-between}
+header h1{font-size:16px;margin:0}
+.role-switch{display:flex;gap:6px}
+.role{padding:8px 10px;border-radius:8px;border:1px solid transparent;background:transparent;font-weight:600}
+.role.active{background:var(--accent);color:white}
+.top-actions button{padding:8px;border-radius:8px;border:0;background:#111827;color:white;font-size:13px}
+#formSection{background:var(--card);padding:10px;border-radius:12px;box-shadow:0 1px 3px rgba(2,6,23,0.06)}
+#entryForm{display:flex;gap:8px;flex-wrap:wrap}
+#entryForm input, #entryForm select{flex:1 1 120px;padding:10px;border-radius:8px;border:1px solid #e6e9ef;background:transparent}
+#entryForm .ghost{background:transparent;border:1px dashed #cbd5e1}
+#saveBtn{background:var(--accent);color:white;border:0;padding:10px 12px;border-radius:8px}
+#listSection{flex:1;overflow:auto;background:transparent;padding:6px 2px}
+#entries{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.entry{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;background:var(--card);box-shadow:0 1px 2px rgba(2,6,23,0.04)}
+.entry .left{display:flex;gap:12px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;background:#34d399}
+.meta{display:flex;flex-direction:column}
+.meta .who{font-weight:700}
+.meta .due{font-size:13px;color:var(--muted)}
+.amount{font-weight:700}
+.badge{padding:6px 8px;border-radius:999px;font-size:12px}
+.badge.owed{background:#bbf7d0;color:#065f46} /* soft mint for owed */
+.badge.paid{background:rgba(5,150,105,0.12);color:var(--success)} /* subtle paid green */
+.controls{display:flex;gap:8px}
+.ctrl-btn{background:transparent;border:0;padding:6px;border-radius:8px}
+.empty{opacity:0.6}
+
+/* partial payment progress bar */
+.progress-wrap{display:flex;align-items:center;gap:8px;min-width:120px}
+.progress-bar{background:#ecfdf5;border-radius:999px;height:12px;width:120px;overflow:hidden;display:block}
+.progress-inner{height:100%;background:linear-gradient(90deg,var(--accent),#34d399);border-radius:999px;color:white;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 6px;white-space:nowrap}
+
+/* partial payment progress bar */
+.progress-wrap{display:flex;align-items:center;gap:8px;min-width:120px}
+.progress-bar{background:#ecfdf5;border-radius:999px;height:12px;width:120px;overflow:hidden;display:block}
+.progress-inner{height:100%;background:linear-gradient(90deg,var(--accent),#34d399);border-radius:999px;color:white;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 6px;white-space:nowrap}
+footer{font-size:12px;color:var(--muted);text-align:center}
+@media (max-width:480px){
+  header h1{font-size:15px}
+  .avatar{width:40px;height:40px}
+  #entryForm input, #entryForm select{flex:1 1 100%}
+}
+
+/* celebration money falling */
+.money-item{
+  position:absolute;
+  top:-8vh;
+  will-change:transform,opacity;
+  pointer-events:none;
+  user-select:none;
+  transform-origin:center;
+  text-shadow:0 1px 0 rgba(0,0,0,0.06);
+  opacity:0;
+}
+.money-animate{
+  animation: moneyFall 2.3s cubic-bezier(.18,.86,.32,1) forwards;
+}
+@keyframes moneyFall{
+  0%{ transform: translateY(-8vh) rotate(0deg); opacity:0; }
+  10%{ opacity:1; }
+  60%{ transform: translateY(65vh) rotate(120deg); opacity:0.95; }
+  100%{ transform: translateY(120vh) rotate(200deg); opacity:0; }
+}
+
+/* Thermometer total tracker (right side) */
+#thermometer{
+  position:fixed;
+  right:12px;
+  top:90px;
+  width:120px;
+  z-index:9997;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:auto;
+}
+.thermometer-shell{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  background:transparent;
+}
+.thermometer-track{
+  width:28px;
+  height:220px;
+  border-radius:14px;
+  background:linear-gradient(180deg,#ecfdf5 0%, #f0fff4 100%);
+  border:4px solid rgba(7,101,54,0.06);
+  box-shadow:inset 0 2px 6px rgba(2,6,23,0.04);
+  overflow:hidden;
+  display:flex;
+  align-items:flex-end;
+  position:relative;
+}
+.thermometer-bulb{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:var(--card);
+  border:6px solid #ecfdf5;
+  box-shadow:0 6px 16px rgba(2,6,23,0.06);
+  margin-top:4px;
+}
+.thermo-fill{
+  width:100%;
+  background:linear-gradient(180deg,var(--accent),#34d399);
+  border-radius:10px 10px 999px 999px;
+  transition:height 900ms cubic-bezier(.2,.9,.2,1), transform 900ms;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:700;
+  font-size:12px;
+  box-shadow: inset 0 2px 6px rgba(255,255,255,0.08);
+}
+/* small celebratory emoji at top of thermometer when full */
+.thermo-emoji{
+  font-size:20px;
+  line-height:1;
+  height:28px;
+  width:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transform:translateY(-6px) scale(0.85);
+  opacity:0;
+  transition:transform 420ms cubic-bezier(.2,.9,.2,1), opacity 420ms;
+  pointer-events:none;
+}
+.thermo-emoji.pop{
+  transform:translateY(0) scale(1.2);
+  opacity:1;
+}
+.thermo-labels{display:flex;flex-direction:column;align-items:center;gap:4px}
+.thermo-amount{font-size:12px;color:var(--muted);background:rgba(255,255,255,0.6);padding:4px 8px;border-radius:999px}
+.thermo-percent{font-size:13px;font-weight:700;color:var(--accent)}
+
+/* when complete, small pulse animation on bulb and percent */
+.thermo-complete .thermo-burst{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  pointer-events:none;
+  animation:burst 900ms ease-out forwards;
+}
+@keyframes burst{
+  0%{transform:scale(0);opacity:1}
+  100%{transform:scale(2);opacity:0}
+}
+
+/* responsive: hide on very small screens to keep space for form */
+@media (max-width:420px){
+  #thermometer{display:none}
+}
+
+/* PIN overlay styles */
+.pin-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);backdrop-filter:blur(4px);z-index:9999}
+.pin-box{width:92%;max-width:360px;background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.2);text-align:center}
+.pin-box h2{margin:0 0 12px 0;font-size:18px}
+#pinInput{font-size:20px;letter-spacing:6px;padding:12px;border-radius:8px;border:1px solid #e6e9ef;width:100%;text-align:center}
+.pin-actions{display:flex;gap:8px;margin-top:12px;justify-content:center}
+.pin-actions .ghost{background:transparent;border:1px dashed #cbd5e1;padding:8px 12px;border-radius:8px}
+.pin-actions button{padding:8px 12px;border-radius:8px;background:var(--accent);color:#fff;border:0}
+.pin-msg{margin-top:10px;font-size:13px;color:var(--danger);min-height:18px}
+.pin-overlay[aria-hidden="true"]{display:none}
+
+/* Thermometer collapsed state and toggle button */
+#thermometer.collapsed{
+  width:56px;
+  right:12px;
+  transition:width 300ms ease;
+}
+#thermometer.collapsed .thermometer-shell{align-items:center}
+#thermometer.collapsed .thermometer-track{height:140px;width:18px}
+#thermometer.collapsed .thermo-labels,
+#thermometer.collapsed .thermo-amount,
+#thermometer.collapsed .thermo-percent{
+  display:none;
+}
+#thermometer .thermo-toggle{
+  position:absolute;
+  top:-8px;
+  right:-8px;
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  background:var(--card);
+  border:1px solid rgba(2,6,23,0.06);
+  box-shadow:0 2px 6px rgba(2,6,23,0.06);
+  font-weight:700;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:10000;
+}
+#thermometer .thermo-toggle[aria-pressed="true"]{
+  background:var(--accent);
+  color:#fff;
+  transform:scale(0.98);
+}
+
+/* ensure toggle is hidden on very small screens where thermometer itself is hidden */
+@media (max-width:420px){
+  /* hide thermometer on very small screens to prioritise main UI */
+  #thermometer{display:none}
+  #thermometer .thermo-toggle{display:none}
+
+  /* reduce outer padding and header spacing so content fits one viewport */
+  main{margin:6px auto;padding:8px;height:100vh}
+  header{gap:6px}
+  header h1{font-size:15px}
+
+  /* make form controls stack and fill width for easy tapping */
+  #entryForm{gap:8px}
+  #entryForm input, #entryForm select, #saveBtn, #clearBtn{flex:1 1 100%;min-height:48px;padding:12px;font-size:15px}
+  #saveBtn{padding:12px;border-radius:10px}
+  #entryForm .ghost{padding:10px}
+
+  /* enlarge interactive controls in lists for touch */
+  .ctrl-btn{padding:10px;min-width:44px;min-height:44px;border-radius:10px}
+  .controls{gap:10px}
+
+  /* larger avatars and tighter entry padding */
+  .avatar{width:48px;height:48px;border-radius:12px;font-size:16px}
+  .entry{padding:10px;border-radius:12px}
+
+  /* ensure progress bar is comfortably tappable */
+  .progress-bar{width:140px;height:14px}
+  .progress-inner{font-size:12px;padding:0 8px}
+
+  /* PIN box should fit and be easy to tap */
+  .pin-box{width:96%;max-width:420px;padding:16px}
+  #pinInput{font-size:22px;padding:14px}
+  .pin-actions button, .pin-actions .ghost{min-width:72px;padding:10px 12px}
+
+  /* ensure lists scroll inside available area without pushing past viewport */
+  #listSection{flex:1;overflow:auto;padding:6px 2px;min-height:0}
+
+  /* reduce footer and helper text to avoid clutter */
+  footer{font-size:12px}
+
+  /* ensure touch targets for thermometer toggle remain accessible if shown on some devices */
+  #thermometer .thermo-toggle{min-width:44px;min-height:44px}
+}
